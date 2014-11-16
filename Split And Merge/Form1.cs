@@ -17,6 +17,11 @@ namespace Split_And_Merge
         #region Variables
 
         private const int PARTS = 10;
+        ListView lstParts = new System.Windows.Forms.ListView();
+        private System.Windows.Forms.ColumnHeader itmFileName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+        private System.Windows.Forms.ColumnHeader itmPartSize = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+        private System.Windows.Forms.ColumnHeader itmStartByte = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+        private System.Windows.Forms.ColumnHeader itmEndByte = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 
         string[] FileLocationArr;
         long[] FileSizeArr;
@@ -58,6 +63,12 @@ namespace Split_And_Merge
 
         public Form1()
         {
+            this.lstParts.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.itmFileName,
+            this.itmPartSize,
+            this.itmStartByte,
+            this.itmEndByte});
+
             InitializeComponent();
         }
 
@@ -146,6 +157,50 @@ namespace Split_And_Merge
             txtNumParts.Value = (int)Reader.Length / txtPartSize.Value;
         }
 
+        private void btnStart_Click(object sender, EventArgs e)
+        {
+            if (RemainingSize == 0) return;
+            if (txtPartName.Text.Length == 0 || txtPartSize.Text.Length == 0)
+            {
+                MessageBox.Show("Enter the filename and the size of the part to be added and then try again.");
+                return;
+            }
+            long tempInt;
+            try
+            {
+                tempInt = Convert.ToInt64(txtPartSize.Text.Trim());
+            }
+            catch { MessageBox.Show("Only numbers can be entered in the size column provided. No alphabets or special characters can be entered."); return; }
 
+            lstParts.Items.Clear();
+
+            if (RemainingSize < tempInt) { MessageBox.Show("Size mentioned is greater than the size remaining Remaining size."); return; }
+
+            generatePart(0, tempInt);
+        }
+
+        private void generatePart(int numPart, long tempInt)
+        {
+            tempInt = (RemainingSize - tempInt < 0 ? RemainingSize : tempInt);
+            //txtPartSize.Text = tempInt.ToString();
+
+            RemainingSize = RemainingSize - tempInt;
+
+            string StartByte = "1", EndByte = txtPartSize.Text;
+
+            if (lstParts.Items.Count != 0)
+            {
+                long tmpStart = Convert.ToInt64(lstParts.Items[lstParts.Items.Count - 1].SubItems[3].Text);
+                long tmpEnd = tmpStart + Convert.ToInt64(txtPartSize.Text);
+                tmpStart++;
+                StartByte = tmpStart.ToString();
+                EndByte = tmpEnd.ToString();
+            }
+
+            lstParts.Items.Add(new ListViewItem(new string[] { txtPartName.Text + "." + numPart.ToString(), txtPartSize.Text, StartByte, EndByte }));
+
+            if (RemainingSize > 0) { generatePart(numPart + 1, tempInt); }
+
+        }
     }
 }

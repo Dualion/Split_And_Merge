@@ -36,19 +36,24 @@
             this.itmExit = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
             this.panelButtons = new System.Windows.Forms.Panel();
+            this.gBoxSelParts = new System.Windows.Forms.GroupBox();
+            this.rButtonNParts = new System.Windows.Forms.RadioButton();
+            this.rButtonSParts = new System.Windows.Forms.RadioButton();
+            this.lblPieces = new System.Windows.Forms.Label();
             this.lblTotalSize = new System.Windows.Forms.Label();
             this.btnBrowsePart = new System.Windows.Forms.Button();
             this.txtTotalSize = new System.Windows.Forms.TextBox();
             this.lblNumParts = new System.Windows.Forms.Label();
             this.lblBufferSize = new System.Windows.Forms.Label();
             this.lblPartName = new System.Windows.Forms.Label();
+            this.txtPartSize = new System.Windows.Forms.NumericUpDown();
+            this.txtNumParts = new System.Windows.Forms.NumericUpDown();
             this.txtBufferSize = new System.Windows.Forms.NumericUpDown();
             this.btnStop = new System.Windows.Forms.Button();
             this.txtPartName = new System.Windows.Forms.TextBox();
             this.btnStart = new System.Windows.Forms.Button();
             this.lblPartSize = new System.Windows.Forms.Label();
             this.panelStatus = new System.Windows.Forms.Panel();
-            this.lblPieces = new System.Windows.Forms.Label();
             this.txtOverallFileByte = new System.Windows.Forms.Label();
             this.lblProcessingOL = new System.Windows.Forms.Label();
             this.txtCurrentFileByte = new System.Windows.Forms.Label();
@@ -64,19 +69,14 @@
             this.lblCurrentFile = new System.Windows.Forms.Label();
             this.lblRemainingTime = new System.Windows.Forms.Label();
             this.lblBottomHeader = new System.Windows.Forms.Label();
-            this.rButtonNParts = new System.Windows.Forms.RadioButton();
-            this.rButtonSParts = new System.Windows.Forms.RadioButton();
-            this.gBoxSelParts = new System.Windows.Forms.GroupBox();
-            this.txtNumParts = new System.Windows.Forms.NumericUpDown();
-            this.txtPartSize = new System.Windows.Forms.NumericUpDown();
             this.MainMenuStrip.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panelButtons.SuspendLayout();
+            this.gBoxSelParts.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.txtPartSize)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtNumParts)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtBufferSize)).BeginInit();
             this.panelStatus.SuspendLayout();
-            this.gBoxSelParts.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.txtNumParts)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtPartSize)).BeginInit();
             this.SuspendLayout();
             // 
             // txtSourceFile
@@ -171,6 +171,52 @@
             this.panelButtons.TabIndex = 6;
             this.panelButtons.Visible = false;
             // 
+            // gBoxSelParts
+            // 
+            this.gBoxSelParts.Controls.Add(this.rButtonNParts);
+            this.gBoxSelParts.Controls.Add(this.rButtonSParts);
+            this.gBoxSelParts.Location = new System.Drawing.Point(267, 81);
+            this.gBoxSelParts.Name = "gBoxSelParts";
+            this.gBoxSelParts.Size = new System.Drawing.Size(112, 51);
+            this.gBoxSelParts.TabIndex = 39;
+            this.gBoxSelParts.TabStop = false;
+            this.gBoxSelParts.Text = "Sel Parts";
+            // 
+            // rButtonNParts
+            // 
+            this.rButtonNParts.AutoSize = true;
+            this.rButtonNParts.Checked = true;
+            this.rButtonNParts.Location = new System.Drawing.Point(32, 14);
+            this.rButtonNParts.Name = "rButtonNParts";
+            this.rButtonNParts.Size = new System.Drawing.Size(77, 17);
+            this.rButtonNParts.TabIndex = 38;
+            this.rButtonNParts.TabStop = true;
+            this.rButtonNParts.Text = "Num Parts ";
+            this.rButtonNParts.UseVisualStyleBackColor = true;
+            this.rButtonNParts.CheckedChanged += new System.EventHandler(this.rButton_CheckedChanged);
+            // 
+            // rButtonSParts
+            // 
+            this.rButtonSParts.AutoSize = true;
+            this.rButtonSParts.Location = new System.Drawing.Point(32, 32);
+            this.rButtonSParts.Name = "rButtonSParts";
+            this.rButtonSParts.Size = new System.Drawing.Size(72, 17);
+            this.rButtonSParts.TabIndex = 38;
+            this.rButtonSParts.Text = "Size Parts";
+            this.rButtonSParts.UseVisualStyleBackColor = true;
+            // 
+            // lblPieces
+            // 
+            this.lblPieces.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            this.lblPieces.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblPieces.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblPieces.Location = new System.Drawing.Point(0, 0);
+            this.lblPieces.Name = "lblPieces";
+            this.lblPieces.Size = new System.Drawing.Size(669, 23);
+            this.lblPieces.TabIndex = 37;
+            this.lblPieces.Text = "Info File";
+            this.lblPieces.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // lblTotalSize
             // 
             this.lblTotalSize.AutoSize = true;
@@ -227,6 +273,53 @@
             this.lblPartName.TabIndex = 28;
             this.lblPartName.Text = "Part Name";
             // 
+            // txtPartSize
+            // 
+            this.txtPartSize.Enabled = false;
+            this.txtPartSize.Increment = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            0});
+            this.txtPartSize.Location = new System.Drawing.Point(72, 110);
+            this.txtPartSize.Maximum = new decimal(new int[] {
+            900000000,
+            0,
+            0,
+            0});
+            this.txtPartSize.Minimum = new decimal(new int[] {
+            500000,
+            0,
+            0,
+            0});
+            this.txtPartSize.Name = "txtPartSize";
+            this.txtPartSize.Size = new System.Drawing.Size(165, 20);
+            this.txtPartSize.TabIndex = 32;
+            this.txtPartSize.Value = new decimal(new int[] {
+            1000000,
+            0,
+            0,
+            0});
+            this.txtPartSize.ValueChanged += new System.EventHandler(this.txtPartSize_ValueChanged);
+            // 
+            // txtNumParts
+            // 
+            this.txtNumParts.Location = new System.Drawing.Point(72, 84);
+            this.txtNumParts.Minimum = new decimal(new int[] {
+            2,
+            0,
+            0,
+            0});
+            this.txtNumParts.Name = "txtNumParts";
+            this.txtNumParts.Size = new System.Drawing.Size(165, 20);
+            this.txtNumParts.TabIndex = 32;
+            this.txtNumParts.Value = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            this.txtNumParts.ValueChanged += new System.EventHandler(this.txtNumParts_ValueChanged);
+            // 
             // txtBufferSize
             // 
             this.txtBufferSize.Increment = new decimal(new int[] {
@@ -282,12 +375,13 @@
             this.btnStart.BackColor = System.Drawing.Color.GreenYellow;
             this.btnStart.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnStart.ForeColor = System.Drawing.Color.Blue;
-            this.btnStart.Location = new System.Drawing.Point(570, 29);
+            this.btnStart.Location = new System.Drawing.Point(570, 31);
             this.btnStart.Name = "btnStart";
             this.btnStart.Size = new System.Drawing.Size(87, 59);
             this.btnStart.TabIndex = 35;
             this.btnStart.Text = "Start";
             this.btnStart.UseVisualStyleBackColor = false;
+            this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
             // 
             // lblPartSize
             // 
@@ -321,18 +415,6 @@
             this.panelStatus.Size = new System.Drawing.Size(669, 124);
             this.panelStatus.TabIndex = 7;
             this.panelStatus.Visible = false;
-            // 
-            // lblPieces
-            // 
-            this.lblPieces.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
-            this.lblPieces.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblPieces.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblPieces.Location = new System.Drawing.Point(0, 0);
-            this.lblPieces.Name = "lblPieces";
-            this.lblPieces.Size = new System.Drawing.Size(669, 23);
-            this.lblPieces.TabIndex = 37;
-            this.lblPieces.Text = "Info File";
-            this.lblPieces.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // txtOverallFileByte
             // 
@@ -472,87 +554,6 @@
             this.lblBottomHeader.Text = "Spliting Status";
             this.lblBottomHeader.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // rButtonNParts
-            // 
-            this.rButtonNParts.AutoSize = true;
-            this.rButtonNParts.Checked = true;
-            this.rButtonNParts.Location = new System.Drawing.Point(32, 14);
-            this.rButtonNParts.Name = "rButtonNParts";
-            this.rButtonNParts.Size = new System.Drawing.Size(77, 17);
-            this.rButtonNParts.TabIndex = 38;
-            this.rButtonNParts.TabStop = true;
-            this.rButtonNParts.Text = "Num Parts ";
-            this.rButtonNParts.UseVisualStyleBackColor = true;
-            this.rButtonNParts.CheckedChanged += new System.EventHandler(this.rButton_CheckedChanged);
-            // 
-            // rButtonSParts
-            // 
-            this.rButtonSParts.AutoSize = true;
-            this.rButtonSParts.Location = new System.Drawing.Point(32, 32);
-            this.rButtonSParts.Name = "rButtonSParts";
-            this.rButtonSParts.Size = new System.Drawing.Size(72, 17);
-            this.rButtonSParts.TabIndex = 38;
-            this.rButtonSParts.Text = "Size Parts";
-            this.rButtonSParts.UseVisualStyleBackColor = true;
-            // 
-            // gBoxSelParts
-            // 
-            this.gBoxSelParts.Controls.Add(this.rButtonNParts);
-            this.gBoxSelParts.Controls.Add(this.rButtonSParts);
-            this.gBoxSelParts.Location = new System.Drawing.Point(267, 81);
-            this.gBoxSelParts.Name = "gBoxSelParts";
-            this.gBoxSelParts.Size = new System.Drawing.Size(112, 51);
-            this.gBoxSelParts.TabIndex = 39;
-            this.gBoxSelParts.TabStop = false;
-            this.gBoxSelParts.Text = "Sel Parts";
-            // 
-            // txtNumParts
-            // 
-            this.txtNumParts.Location = new System.Drawing.Point(72, 84);
-            this.txtNumParts.Minimum = new decimal(new int[] {
-            2,
-            0,
-            0,
-            0});
-            this.txtNumParts.Name = "txtNumParts";
-            this.txtNumParts.Size = new System.Drawing.Size(165, 20);
-            this.txtNumParts.TabIndex = 32;
-            this.txtNumParts.Value = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
-            this.txtNumParts.ValueChanged += new System.EventHandler(this.txtNumParts_ValueChanged);
-            // 
-            // txtPartSize
-            // 
-            this.txtPartSize.Enabled = false;
-            this.txtPartSize.Increment = new decimal(new int[] {
-            10000,
-            0,
-            0,
-            0});
-            this.txtPartSize.Location = new System.Drawing.Point(72, 110);
-            this.txtPartSize.Maximum = new decimal(new int[] {
-            900000000,
-            0,
-            0,
-            0});
-            this.txtPartSize.Minimum = new decimal(new int[] {
-            500000,
-            0,
-            0,
-            0});
-            this.txtPartSize.Name = "txtPartSize";
-            this.txtPartSize.Size = new System.Drawing.Size(165, 20);
-            this.txtPartSize.TabIndex = 32;
-            this.txtPartSize.Value = new decimal(new int[] {
-            1000000,
-            0,
-            0,
-            0});
-            this.txtPartSize.ValueChanged += new System.EventHandler(this.txtPartSize_ValueChanged);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -572,13 +573,13 @@
             this.panel1.PerformLayout();
             this.panelButtons.ResumeLayout(false);
             this.panelButtons.PerformLayout();
+            this.gBoxSelParts.ResumeLayout(false);
+            this.gBoxSelParts.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.txtPartSize)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtNumParts)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtBufferSize)).EndInit();
             this.panelStatus.ResumeLayout(false);
             this.panelStatus.PerformLayout();
-            this.gBoxSelParts.ResumeLayout(false);
-            this.gBoxSelParts.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.txtNumParts)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtPartSize)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
