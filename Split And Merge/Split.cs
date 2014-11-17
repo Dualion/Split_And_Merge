@@ -17,46 +17,35 @@ namespace Split_And_Merge
         #region Variables
 
         private const int PARTS = 10;
-        ListView lstParts = new System.Windows.Forms.ListView();
+		public static string filePath = "";
+
+		#region columns ListView
+		ListView lstParts = new System.Windows.Forms.ListView();
         private System.Windows.Forms.ColumnHeader itmFileName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
         private System.Windows.Forms.ColumnHeader itmPartSize = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
         private System.Windows.Forms.ColumnHeader itmStartByte = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
         private System.Windows.Forms.ColumnHeader itmEndByte = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+		#endregion
 
-        string[] FileLocationArr;
+		string[] FileLocationArr;
         long[] FileSizeArr;
         long[] StartByteArr;
         long[] EndByteArr;
-
         byte[] SourceByte;
 
-
-        //FileStream Reader;
-        FileStream Writer;
+        FileStream fileWriter;
         BinaryReader fileReader;
 
         bool Canceled = false;
         bool StartedSpliting = false;
 
-        // Total size of file in bytes
-        long TotalSize;
-
-        // Total Size Used while adding.
-        long RemainingSize;
-
-        // Size of the buffer selected by user
-        long BufferSize;
-
-        // Total no of files to be splited
-        int TotalFile;
-
-        // Index Number of current file in progress
-        int CurrentFileIndex;
-
         long LastEstimation = 0;
-
-        // Buffer for transferring data
-        byte[] Data;
+        long TotalSize;		// Total size of file in bytes
+        long RemainingSize;	// Total Size Used while adding.
+        long BufferSize;	// Size of the buffer selected by user
+        int TotalFile;		// Total no of files to be splited
+        int CurrentFileIndex;// Index Number of current file in progress
+		byte[] Data;		// Buffer for transferring data
 
         #endregion
 
@@ -70,6 +59,11 @@ namespace Split_And_Merge
 
             InitializeComponent();
 
+			MessageBox.Show(filePath, "File");
+
+			if (String.IsNullOrWhiteSpace(filePath))
+				AssignSourceFile(filePath);
+
 		}
 
         private void Exit_Click(object sender, EventArgs e)
@@ -79,6 +73,34 @@ namespace Split_And_Merge
             if (DR == DialogResult.No) return;
             this.Close();
         }
+
+		private void AssignSourceFile(string Path)
+		{
+			try
+			{
+				using (fileReader = new BinaryReader(File.Open(Path, FileMode.Open, FileAccess.Read, FileShare.None)))
+				{
+					SourceByte = new byte[30];
+					fileReader.Read(SourceByte, 0, 10);
+
+					fileReader.BaseStream.Position = (fileReader.BaseStream.Length / 2) - 5;
+					fileReader.Read(SourceByte, 10, 10);
+					fileReader.BaseStream.Position = fileReader.BaseStream.Length - 10;
+					fileReader.Read(SourceByte, 20, 10);
+					fileReader.BaseStream.Position = 0;
+					filePath = txtSourceFile.Text = Path;
+					txtTotalSize.Text = fileReader.BaseStream.Length.ToString();
+					TotalSize = RemainingSize = fileReader.BaseStream.Length;
+					txtNumParts.Value = PARTS;
+					txtPartSize.Maximum = fileReader.BaseStream.Length / 2;
+					txtPartSize.Minimum = fileReader.BaseStream.Length / 100;
+					panelButtons.Visible = true;
+					fileReader.BaseStream.Close();
+				}
+			}
+			catch (FileNotFoundException) { MessageBox.Show("The specified source file to split was not found. Please select an existing file.", "File Not Found"); }
+			catch { MessageBox.Show("The selected source file could not be accessed. It might be either blocked by some other process. Stop all the process using the file and then try again.", "Error"); }
+		}
 
         void BrowseSource_Click(object sender, EventArgs e)
         {
@@ -98,34 +120,6 @@ namespace Split_And_Merge
             SFD.CheckPathExists = true;
             if (SFD.ShowDialog() == DialogResult.Cancel) return;
             txtPartName.Text = SFD.FileName;
-        }
-
-        void AssignSourceFile(string Path)
-        {
-            try
-            {
-                using (fileReader = new BinaryReader(File.Open(Path, FileMode.Open, FileAccess.Read, FileShare.None)))
-                {
-                    SourceByte = new byte[30];
-                    fileReader.Read(SourceByte, 0, 10);
-
-                    fileReader.BaseStream.Position = (fileReader.BaseStream.Length / 2) - 5;
-                    fileReader.Read(SourceByte, 10, 10);
-                    fileReader.BaseStream.Position = fileReader.BaseStream.Length - 10;
-                    fileReader.Read(SourceByte, 20, 10);
-                    fileReader.BaseStream.Position = 0;
-                    txtSourceFile.Text = Path;
-                    txtTotalSize.Text = fileReader.BaseStream.Length.ToString();
-                    TotalSize = RemainingSize = fileReader.BaseStream.Length;
-                    txtNumParts.Value = PARTS;
-                    txtPartSize.Maximum = fileReader.BaseStream.Length / 2;
-                    txtPartSize.Minimum = fileReader.BaseStream.Length / 100;
-                    panelButtons.Visible = true;
-                    fileReader.BaseStream.Close();
-                }
-            }
-            catch (FileNotFoundException) { MessageBox.Show("The specified source file to split was not found. Please select an existing file.", "File Not Found"); }
-            catch { MessageBox.Show("The selected source file could not be accessed. It might be either blocked by some other process. Stop all the process using the file and then try again.", "Error"); }
         }
 
         private void rButton_CheckedChanged(object sender, EventArgs e)
@@ -212,7 +206,7 @@ namespace Split_And_Merge
             if (lstParts.Items.Count == 1) { MessageBox.Show("The file must be atleast splited into two parts.", "Requirement Failed"); return; }
             try
             {
-                fileReader = new BinaryReader(File.Open(txtSourceFile.Text, FileMode.Open, FileAccess.Read, FileShare.None));
+                fileReader = new BinaryReader(File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.None));
             }
             catch (FileNotFoundException) { MessageBox.Show("The specified source file to split was not found. Please select an existing file.", "File Not Found"); return; }
             catch { MessageBox.Show("The selected source file could not be accessed. It might be either blocked by some other process. Stop all the process using the file and then try again.", "Error"); return; }
@@ -256,8 +250,8 @@ namespace Split_And_Merge
             {
                 txtFileProcessing.Text = "File " + Convert.ToString(CurrentFileIndex + 1) + " / " + TotalFile.ToString();
 
-                progressCurrentFile.Value = Convert.ToInt32((Writer.Length * 100) / FileSizeArr[CurrentFileIndex]);
-                txtCurrentFileByte.Text = Writer.Length + " Bytes";
+                progressCurrentFile.Value = Convert.ToInt32((fileWriter.Length * 100) / FileSizeArr[CurrentFileIndex]);
+                txtCurrentFileByte.Text = fileWriter.Length + " Bytes";
                 txtCurrentFilePrec.Text = progressCurrentFile.Value.ToString() + "% Completed";
 
                 progressOverallStatus.Value = Convert.ToInt32((fileReader.BaseStream.Position * 100) / TotalSize);
@@ -342,10 +336,10 @@ namespace Split_And_Merge
                     continue;
                 }
                 Directory.CreateDirectory(FileLocationArr[CurrentFileIndex].Substring(0, FileLocationArr[CurrentFileIndex].LastIndexOf("\\")));
-                Writer = new FileStream(FileLocationArr[CurrentFileIndex], FileMode.Append, FileAccess.Write, FileShare.None);
+                fileWriter = new FileStream(FileLocationArr[CurrentFileIndex], FileMode.Append, FileAccess.Write, FileShare.None);
 
                 // Set the position of the reader.
-                fileReader.BaseStream.Position = StartByteArr[CurrentFileIndex] - 1 + Writer.Length;
+                fileReader.BaseStream.Position = StartByteArr[CurrentFileIndex] - 1 + fileWriter.Length;
 
                 // Get the end position of Current file.
                 tmpEndByte = EndByteArr[CurrentFileIndex];
@@ -369,13 +363,13 @@ namespace Split_And_Merge
                     //tmpReadByte += Reader.Read(Data, 0, Data.Length);
                     Data = fileReader.ReadBytes(Data.Length);
                     tmpReadByte += Data.Length;
-                    Writer.Write(Data, 0, Data.Length);
+                    fileWriter.Write(Data, 0, Data.Length);
                     if (Canceled) return;
                 }
 
                 // Add completed file when completed.
                 CurrentFileIndex++;
-                Writer.Flush(); Writer.Close();
+                fileWriter.Flush(); fileWriter.Close();
             }
         }
 
@@ -399,7 +393,7 @@ namespace Split_And_Merge
             TimeEstimater.Enabled = false;
             txtTimeRemaining.Text = "Estimating... Please Wait";
 
-            try { Writer.Close(); Writer = null; }
+            try { fileWriter.Close(); fileWriter = null; }
             catch { }
 
             fileReader.Close(); fileReader = null;
