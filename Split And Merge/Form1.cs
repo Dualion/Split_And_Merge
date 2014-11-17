@@ -30,10 +30,10 @@ namespace Split_And_Merge
 
         byte[] SourceByte;
 
-        public static string ProjectLocation = "";
 
-        FileStream Reader;
+        //FileStream Reader;
         FileStream Writer;
+        BinaryReader fileReader;
 
         bool Canceled = false;
         bool StartedSpliting = false;
@@ -57,7 +57,7 @@ namespace Split_And_Merge
 
         // Buffer for transferring data
         byte[] Data;
-        
+
         #endregion
 
 
@@ -104,22 +104,26 @@ namespace Split_And_Merge
         {
             try
             {
-                Reader = new FileStream(Path, FileMode.Open, FileAccess.Read, FileShare.None);
-                SourceByte = new byte[30];
-                Reader.Read(SourceByte, 0, 10);
-                Reader.Position = (Reader.Length / 2) - 5;
-                Reader.Read(SourceByte, 10, 10);
-                Reader.Position = Reader.Length - 10;
-                Reader.Read(SourceByte, 20, 10);
-                Reader.Position = 0;
-                txtSourceFile.Text = Path;
-                txtNumParts.Value = PARTS;
-                txtPartSize.Maximum = Reader.Length / 2;
-                txtPartSize.Minimum = Reader.Length / 100;
-                txtPartSize.Value = Reader.Length / PARTS;
-                txtTotalSize.Text = Reader.Length.ToString();
-                TotalSize = RemainingSize = Reader.Length;
-                panelButtons.Visible = true;
+                //using (Reader = new FileStream(Path, FileMode.Open, FileAccess.Read, FileShare.None))
+                using (fileReader = new BinaryReader(File.Open(Path, FileMode.Open, FileAccess.Read, FileShare.None)))
+                {
+                    SourceByte = new byte[30];
+                    fileReader.Read(SourceByte, 0, 10);
+
+                    fileReader.BaseStream.Position = (fileReader.BaseStream.Length / 2) - 5;
+                    fileReader.Read(SourceByte, 10, 10);
+                    fileReader.BaseStream.Position = fileReader.BaseStream.Length - 10;
+                    fileReader.Read(SourceByte, 20, 10);
+                    fileReader.BaseStream.Position = 0;
+                    txtSourceFile.Text = Path;
+                    txtTotalSize.Text = fileReader.BaseStream.Length.ToString();
+                    TotalSize = RemainingSize = fileReader.BaseStream.Length;
+                    txtNumParts.Value = PARTS;
+                    txtPartSize.Maximum = fileReader.BaseStream.Length / 2;
+                    txtPartSize.Minimum = fileReader.BaseStream.Length / 100;
+                    panelButtons.Visible = true;
+                    fileReader.BaseStream.Close();
+                }
             }
             catch (FileNotFoundException) { MessageBox.Show("The specified source file to split was not found. Please select an existing file.", "File Not Found"); }
             catch { MessageBox.Show("The selected source file could not be accessed. It might be either blocked by some other process. Stop all the process using the file and then try again.", "Error"); }
@@ -149,17 +153,18 @@ namespace Split_And_Merge
 
         private void txtNumParts_ValueChanged(object sender, EventArgs e)
         {
-            txtPartSize.Value = (int)Reader.Length / txtNumParts.Value;
+            txtPartSize.Value = Math.Ceiling(TotalSize / txtNumParts.Value);
+
         }
 
         private void txtPartSize_ValueChanged(object sender, EventArgs e)
         {
-            txtNumParts.Value = (int)Reader.Length / txtPartSize.Value;
+            txtNumParts.Value = Math.Ceiling(TotalSize / txtPartSize.Value);
         }
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            if (RemainingSize == 0) return;
+            RemainingSize = TotalSize;
             if (txtPartName.Text.Length == 0 || txtPartSize.Text.Length == 0)
             {
                 MessageBox.Show("Enter the filename and the size of the part to be added and then try again.");
@@ -177,30 +182,236 @@ namespace Split_And_Merge
             if (RemainingSize < tempInt) { MessageBox.Show("Size mentioned is greater than the size remaining Remaining size."); return; }
 
             generatePart(0, tempInt);
+            Start();
         }
 
         private void generatePart(int numPart, long tempInt)
         {
             tempInt = (RemainingSize - tempInt < 0 ? RemainingSize : tempInt);
-            //txtPartSize.Text = tempInt.ToString();
-
             RemainingSize = RemainingSize - tempInt;
 
-            string StartByte = "1", EndByte = txtPartSize.Text;
+            string StartByte = "1", EndByte = tempInt.ToString();
 
             if (lstParts.Items.Count != 0)
             {
                 long tmpStart = Convert.ToInt64(lstParts.Items[lstParts.Items.Count - 1].SubItems[3].Text);
-                long tmpEnd = tmpStart + Convert.ToInt64(txtPartSize.Text);
+                long tmpEnd = tmpStart + Convert.ToInt64(tempInt.ToString());
                 tmpStart++;
                 StartByte = tmpStart.ToString();
                 EndByte = tmpEnd.ToString();
             }
 
-            lstParts.Items.Add(new ListViewItem(new string[] { txtPartName.Text + "." + numPart.ToString(), txtPartSize.Text, StartByte, EndByte }));
+            lstParts.Items.Add(new ListViewItem(new string[] { txtPartName.Text + "." + numPart.ToString(), tempInt.ToString(), StartByte, EndByte }));
 
             if (RemainingSize > 0) { generatePart(numPart + 1, tempInt); }
 
         }
+
+        private void Start()
+        {
+            if (lstParts.Items.Count == 0) { MessageBox.Show("Add the name and size of each part to split.", "No Parts Found"); return; }
+            if (lstParts.Items.Count == 1) { MessageBox.Show("The file must be atleast splited into two parts.", "Requirement Failed"); return; }
+            try
+            {
+                //Reader = new FileStream(txtSourceFile.Text, FileMode.Open, FileAccess.Read, FileShare.None);
+                fileReader = new BinaryReader(File.Open(txtSourceFile.Text, FileMode.Open, FileAccess.Read, FileShare.None));
+            }
+            catch (FileNotFoundException) { MessageBox.Show("The specified source file to split was not found. Please select an existing file.", "File Not Found"); return; }
+            catch { MessageBox.Show("The selected source file could not be accessed. It might be either blocked by some other process. Stop all the process using the file and then try again.", "Error"); return; }
+
+            TotalFile = lstParts.Items.Count;
+            FileLocationArr = new string[TotalFile];
+            FileSizeArr = new long[TotalFile];
+            StartByteArr = new long[TotalFile];
+            EndByteArr = new long[TotalFile];
+            BufferSize = Convert.ToInt64(txtBufferSize.Value);
+            for (int i = 0; i < TotalFile; i++)
+            {
+                FileLocationArr[i] = lstParts.Items[i].SubItems[0].Text;
+                FileSizeArr[i] = Convert.ToInt64(lstParts.Items[i].SubItems[1].Text);
+                StartByteArr[i] = Convert.ToInt64(lstParts.Items[i].SubItems[2].Text);
+                EndByteArr[i] = Convert.ToInt64(lstParts.Items[i].SubItems[3].Text);
+            }
+
+            Splitter.RunWorkerAsync();
+            btnStart.Enabled = false;
+            btnStop.Enabled = true;
+
+            panelStatus.Visible = true;
+            Progressor.Enabled = true;
+            LastEstimation = fileReader.BaseStream.Position;
+            TimeEstimater.Enabled = true;
+
+            txtTimeRemaining.Text = "Started, Processing...";
+        }
+
+        void btnStop_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Are you sure to end the process?", "Confirm End Process", MessageBoxButtons.YesNo) == DialogResult.No) return;
+            btnStop.Enabled = false;
+            Canceled = true;
+        }
+
+        void ProgressChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                txtFileProcessing.Text = "File " + Convert.ToString(CurrentFileIndex + 1) + " / " + TotalFile.ToString();
+
+                progressCurrentFile.Value = Convert.ToInt32((Writer.Length * 100) / FileSizeArr[CurrentFileIndex]);
+                txtCurrentFileByte.Text = Writer.Length + " Bytes";
+                txtCurrentFilePrec.Text = progressCurrentFile.Value.ToString() + "% Completed";
+
+                progressOverallStatus.Value = Convert.ToInt32((fileReader.BaseStream.Position * 100) / TotalSize);
+                txtOverallFileByte.Text = fileReader.BaseStream.Position.ToString() + " Bytes";
+                txtOverallPerc.Text = progressOverallStatus.Value.ToString() + "% Completed";
+            }
+            catch { }
+        }
+
+        string GetHours(ref long Sec)
+        {
+            long Count = 0;
+            while (Sec > 3599)
+            {
+                Count++;
+                Sec -= 3600;
+            }
+            if (Count == 0)
+            {
+                if (Sec != 0) return GetMin(ref Sec);
+                else return "";
+            }
+            else
+            {
+                if (Sec != 0) return Count.ToString() + " Hours  " + GetMin(ref Sec);
+                else return Count.ToString() + " Hours";
+            }
+        }
+
+        string GetMin(ref long Sec)
+        {
+            long Count = 0;
+            while (Sec > 59)
+            {
+                Count++;
+                Sec -= 60;
+            }
+            if (Count == 0)
+            {
+                if (Sec != 0) return Sec.ToString() + " Seconds";
+                else return "";
+            }
+            else
+            {
+                if (Sec != 0) return Count.ToString() + " Minutes  " + Sec.ToString() + " Seconds";
+                else return Count.ToString() + " Minutes";
+            }
+        }
+
+        void EstimateTime(object sender, EventArgs e)
+        {
+            long tmpVar = fileReader.BaseStream.Position - LastEstimation;
+            LastEstimation = fileReader.BaseStream.Position;
+            if (tmpVar >= 0) tmpVar = (((TotalSize - fileReader.BaseStream.Position) / tmpVar) * 5);
+            if (tmpVar < 20) tmpVar += 6;
+            txtTimeRemaining.Text = GetHours(ref tmpVar) + "  (approximately)";
+        }
+
+        private void txtBufferSize_ValueChanged(object sender, EventArgs e)
+        {
+            BufferSize = Convert.ToInt64(txtBufferSize.Value);
+        }
+
+        #region Spliting
+
+        void SplitFile(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            long tmpEndByte;
+            long tmpReadByte;
+            CurrentFileIndex = 0;
+
+            while (CurrentFileIndex < TotalFile)
+            {
+                Data = null;
+                try
+                {
+                    Data = new byte[Convert.ToInt32(BufferSize)];
+                }
+                catch
+                {
+                    BufferSize -= 50000;
+                    continue;
+                }
+                Directory.CreateDirectory(FileLocationArr[CurrentFileIndex].Substring(0, FileLocationArr[CurrentFileIndex].LastIndexOf("\\")));
+                Writer = new FileStream(FileLocationArr[CurrentFileIndex], FileMode.Append, FileAccess.Write, FileShare.None);
+
+                // Set the position of the reader.
+                fileReader.BaseStream.Position = StartByteArr[CurrentFileIndex] - 1 + Writer.Length;
+
+                // Get the end position of Current file.
+                tmpEndByte = EndByteArr[CurrentFileIndex];
+
+                tmpReadByte = fileReader.BaseStream.Position;
+
+                while (tmpReadByte < tmpEndByte)
+                {
+                    // Assign no of bytes to read
+                    if (fileReader.BaseStream.Position + BufferSize > tmpEndByte)
+                    {
+                        Data = null;
+                        try
+                        {
+                            Data = new byte[Convert.ToInt32(tmpEndByte - fileReader.BaseStream.Position)];
+                        }
+                        catch { BufferSize -= 50000; continue; }
+                    }
+
+                    // Read and write the data
+                    //tmpReadByte += Reader.Read(Data, 0, Data.Length);
+                    Data = fileReader.ReadBytes(Data.Length);
+                    tmpReadByte += Data.Length;
+                    Writer.Write(Data, 0, Data.Length);
+                    if (Canceled) return;
+                }
+
+                // Add completed file when completed.
+                CurrentFileIndex++;
+                Writer.Flush(); Writer.Close();
+            }
+        }
+
+        void SplitingCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        {
+            if (Canceled) MessageBox.Show("The process had been canceled by the user. Click Start button to resume it again.", "Process Canceled");
+            else
+            {
+                txtFileProcessing.Text = "File " + Convert.ToString(CurrentFileIndex + 1) + " / " + TotalFile.ToString();
+
+                progressCurrentFile.Value = 100;
+                txtCurrentFileByte.Text = lstParts.Items[lstParts.Items.Count - 1].SubItems[3].Text + " Bytes";
+                txtCurrentFilePrec.Text = "100% Completed";
+
+                progressOverallStatus.Value = 100;
+                txtOverallFileByte.Text = txtTotalSize.Text + " Bytes";
+                txtOverallPerc.Text = "100% Completed";
+            }
+
+            Progressor.Enabled = false;
+            TimeEstimater.Enabled = false;
+            txtTimeRemaining.Text = "Estimating... Please Wait";
+
+            try { Writer.Close(); Writer = null; }
+            catch { }
+
+            fileReader.Close(); fileReader = null;
+
+            btnStart.Enabled = true;
+            btnStop.Enabled = false;
+            panelStatus.Visible = false;
+            Canceled = false;
+        }
+        #endregion
+
     }
 }

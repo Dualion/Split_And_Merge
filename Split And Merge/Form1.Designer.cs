@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.txtSourceFile = new System.Windows.Forms.TextBox();
             this.lblSourceFile = new System.Windows.Forms.Label();
             this.btnBrowseSource = new System.Windows.Forms.Button();
@@ -69,6 +70,9 @@
             this.lblCurrentFile = new System.Windows.Forms.Label();
             this.lblRemainingTime = new System.Windows.Forms.Label();
             this.lblBottomHeader = new System.Windows.Forms.Label();
+            this.Progressor = new System.Windows.Forms.Timer(this.components);
+            this.TimeEstimater = new System.Windows.Forms.Timer(this.components);
+            this.Splitter = new System.ComponentModel.BackgroundWorker();
             this.MainMenuStrip.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panelButtons.SuspendLayout();
@@ -346,6 +350,7 @@
             0,
             0,
             0});
+            this.txtBufferSize.ValueChanged += new System.EventHandler(this.txtBufferSize_ValueChanged);
             // 
             // btnStop
             // 
@@ -359,6 +364,7 @@
             this.btnStop.TabIndex = 36;
             this.btnStop.Text = "Stop";
             this.btnStop.UseVisualStyleBackColor = false;
+            this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
             // 
             // txtPartName
             // 
@@ -554,6 +560,22 @@
             this.lblBottomHeader.Text = "Spliting Status";
             this.lblBottomHeader.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // Progressor
+            // 
+            this.Progressor.Interval = 1000;
+            this.Progressor.Tick += new System.EventHandler(this.ProgressChanged);
+            // 
+            // TimeEstimater
+            // 
+            this.TimeEstimater.Interval = 5000;
+            this.TimeEstimater.Tick += new System.EventHandler(this.EstimateTime);
+            // 
+            // Splitter
+            // 
+            this.Splitter.WorkerSupportsCancellation = true;
+            this.Splitter.DoWork += new System.ComponentModel.DoWorkEventHandler(this.SplitFile);
+            this.Splitter.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.SplitingCompleted);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -628,6 +650,9 @@
         private System.Windows.Forms.RadioButton rButtonSParts;
         private System.Windows.Forms.NumericUpDown txtPartSize;
         private System.Windows.Forms.NumericUpDown txtNumParts;
+        private System.Windows.Forms.Timer Progressor;
+        private System.Windows.Forms.Timer TimeEstimater;
+        private System.ComponentModel.BackgroundWorker Splitter;
     }
 }
 
