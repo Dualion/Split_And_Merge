@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 namespace Split_And_Merge
 {
-    public partial class Form1 : Form
+    public partial class Split : Form
     {
 
         #region Variables
@@ -60,21 +60,21 @@ namespace Split_And_Merge
 
         #endregion
 
-
-        public Form1()
-        {
-            this.lstParts.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+		public Split()
+		{
+			this.lstParts.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.itmFileName,
             this.itmPartSize,
             this.itmStartByte,
             this.itmEndByte});
 
             InitializeComponent();
-        }
+
+		}
 
         private void Exit_Click(object sender, EventArgs e)
         {
-            //if (Splitter.IsBusy) { MessageBox.Show("First stop the current process and then try again."); return; }
+            if (Splitter.IsBusy) { MessageBox.Show("First stop the current process and then try again."); return; }
             DialogResult DR = MessageBox.Show("Are you sure to Exit?", "Confirm Exit", MessageBoxButtons.YesNo);
             if (DR == DialogResult.No) return;
             this.Close();
@@ -83,7 +83,7 @@ namespace Split_And_Merge
         void BrowseSource_Click(object sender, EventArgs e)
         {
             if (StartedSpliting) { MessageBox.Show("You cannot perform this action after started to split the file. Stop the process if running and then Click Restart Spliting option from the file menu to do this action."); return; }
-            //if (Splitter.IsBusy) { MessageBox.Show("First stop the current process and then try again."); }
+            if (Splitter.IsBusy) { MessageBox.Show("First stop the current process and then try again."); }
             OpenFileDialog OFD = new OpenFileDialog();
             OFD.CheckFileExists = true;
             if (OFD.ShowDialog() == DialogResult.Cancel) return;
@@ -93,7 +93,7 @@ namespace Split_And_Merge
 
         void BrowsePart_Click(object sender, EventArgs e)
         {
-            //if (Splitter.IsBusy) { MessageBox.Show("First stop the current process and then proceed."); return; }
+            if (Splitter.IsBusy) { MessageBox.Show("First stop the current process and then proceed."); return; }
             SaveFileDialog SFD = new SaveFileDialog();
             SFD.CheckPathExists = true;
             if (SFD.ShowDialog() == DialogResult.Cancel) return;
@@ -104,7 +104,6 @@ namespace Split_And_Merge
         {
             try
             {
-                //using (Reader = new FileStream(Path, FileMode.Open, FileAccess.Read, FileShare.None))
                 using (fileReader = new BinaryReader(File.Open(Path, FileMode.Open, FileAccess.Read, FileShare.None)))
                 {
                     SourceByte = new byte[30];
@@ -213,7 +212,6 @@ namespace Split_And_Merge
             if (lstParts.Items.Count == 1) { MessageBox.Show("The file must be atleast splited into two parts.", "Requirement Failed"); return; }
             try
             {
-                //Reader = new FileStream(txtSourceFile.Text, FileMode.Open, FileAccess.Read, FileShare.None);
                 fileReader = new BinaryReader(File.Open(txtSourceFile.Text, FileMode.Open, FileAccess.Read, FileShare.None));
             }
             catch (FileNotFoundException) { MessageBox.Show("The specified source file to split was not found. Please select an existing file.", "File Not Found"); return; }
