@@ -49,6 +49,8 @@ namespace Split_And_Merge
 
         #endregion
 
+		#region Split
+
 		public Split()
 		{
 			this.lstParts.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
@@ -58,11 +60,6 @@ namespace Split_And_Merge
             this.itmEndByte});
 
             InitializeComponent();
-
-			MessageBox.Show(filePath, "File");
-
-			if (String.IsNullOrWhiteSpace(filePath))
-				AssignSourceFile(filePath);
 
 		}
 
@@ -88,7 +85,7 @@ namespace Split_And_Merge
 					fileReader.BaseStream.Position = fileReader.BaseStream.Length - 10;
 					fileReader.Read(SourceByte, 20, 10);
 					fileReader.BaseStream.Position = 0;
-					filePath = txtSourceFile.Text = Path;
+					filePath = txtSourceFileSplit.Text = Path;
 					txtTotalSize.Text = fileReader.BaseStream.Length.ToString();
 					TotalSize = RemainingSize = fileReader.BaseStream.Length;
 					txtNumParts.Value = PARTS;
@@ -155,6 +152,28 @@ namespace Split_And_Merge
             txtNumParts.Value = Math.Ceiling(TotalSize / txtPartSize.Value);
         }
 
+		private void generatePart(int numPart, long tempInt)
+		{
+			tempInt = (RemainingSize - tempInt < 0 ? RemainingSize : tempInt);
+			RemainingSize = RemainingSize - tempInt;
+
+			string StartByte = "1", EndByte = tempInt.ToString();
+
+			if (lstParts.Items.Count != 0)
+			{
+				long tmpStart = Convert.ToInt64(lstParts.Items[lstParts.Items.Count - 1].SubItems[3].Text);
+				long tmpEnd = tmpStart + Convert.ToInt64(tempInt.ToString());
+				tmpStart++;
+				StartByte = tmpStart.ToString();
+				EndByte = tmpEnd.ToString();
+			}
+
+			lstParts.Items.Add(new ListViewItem(new string[] { txtPartName.Text + "." + numPart.ToString(), tempInt.ToString(), StartByte, EndByte }));
+
+			if (RemainingSize > 0) { generatePart(numPart + 1, tempInt); }
+
+		}
+
         private void btnStart_Click(object sender, EventArgs e)
         {
             RemainingSize = TotalSize;
@@ -178,27 +197,76 @@ namespace Split_And_Merge
             Start();
         }
 
-        private void generatePart(int numPart, long tempInt)
-        {
-            tempInt = (RemainingSize - tempInt < 0 ? RemainingSize : tempInt);
-            RemainingSize = RemainingSize - tempInt;
+		void ProgressChanged(object sender, EventArgs e)
+		{
+			try
+			{
+				txtFileProcessing.Text = "File " + Convert.ToString(CurrentFileIndex + 1) + " / " + TotalFile.ToString();
 
-            string StartByte = "1", EndByte = tempInt.ToString();
+				progressCurrentFile.Value = Convert.ToInt32((fileWriter.Length * 100) / FileSizeArr[CurrentFileIndex]);
+				txtCurrentFileByte.Text = fileWriter.Length + " Bytes";
+				txtCurrentFilePrec.Text = progressCurrentFile.Value.ToString() + "% Completed";
 
-            if (lstParts.Items.Count != 0)
-            {
-                long tmpStart = Convert.ToInt64(lstParts.Items[lstParts.Items.Count - 1].SubItems[3].Text);
-                long tmpEnd = tmpStart + Convert.ToInt64(tempInt.ToString());
-                tmpStart++;
-                StartByte = tmpStart.ToString();
-                EndByte = tmpEnd.ToString();
-            }
+				progressOverallStatus.Value = Convert.ToInt32((fileReader.BaseStream.Position * 100) / TotalSize);
+				txtOverallFileByte.Text = fileReader.BaseStream.Position.ToString() + " Bytes";
+				txtOverallPerc.Text = progressOverallStatus.Value.ToString() + "% Completed";
+			}
+			catch { }
+		}
 
-            lstParts.Items.Add(new ListViewItem(new string[] { txtPartName.Text + "." + numPart.ToString(), tempInt.ToString(), StartByte, EndByte }));
+		string GetHours(ref long Sec)
+		{
+			long Count = 0;
+			while (Sec > 3599)
+			{
+				Count++;
+				Sec -= 3600;
+			}
+			if (Count == 0)
+			{
+				if (Sec != 0) return GetMin(ref Sec);
+				else return "";
+			}
+			else
+			{
+				if (Sec != 0) return Count.ToString() + " Hours  " + GetMin(ref Sec);
+				else return Count.ToString() + " Hours";
+			}
+		}
 
-            if (RemainingSize > 0) { generatePart(numPart + 1, tempInt); }
+		string GetMin(ref long Sec)
+		{
+			long Count = 0;
+			while (Sec > 59)
+			{
+				Count++;
+				Sec -= 60;
+			}
+			if (Count == 0)
+			{
+				if (Sec != 0) return Sec.ToString() + " Seconds";
+				else return "";
+			}
+			else
+			{
+				if (Sec != 0) return Count.ToString() + " Minutes  " + Sec.ToString() + " Seconds";
+				else return Count.ToString() + " Minutes";
+			}
+		}
 
-        }
+		void EstimateTime(object sender, EventArgs e)
+		{
+			long tmpVar = fileReader.BaseStream.Position - LastEstimation;
+			LastEstimation = fileReader.BaseStream.Position;
+			if (tmpVar >= 0) tmpVar = (((TotalSize - fileReader.BaseStream.Position) / tmpVar) * 5);
+			if (tmpVar < 20) tmpVar += 6;
+			txtTimeRemaining.Text = GetHours(ref tmpVar) + "  (approximately)";
+		}
+
+		private void txtBufferSize_ValueChanged(object sender, EventArgs e)
+		{
+			BufferSize = Convert.ToInt64(txtBufferSize.Value);
+		}
 
         private void Start()
         {
@@ -244,78 +312,7 @@ namespace Split_And_Merge
             Canceled = true;
         }
 
-        void ProgressChanged(object sender, EventArgs e)
-        {
-            try
-            {
-                txtFileProcessing.Text = "File " + Convert.ToString(CurrentFileIndex + 1) + " / " + TotalFile.ToString();
-
-                progressCurrentFile.Value = Convert.ToInt32((fileWriter.Length * 100) / FileSizeArr[CurrentFileIndex]);
-                txtCurrentFileByte.Text = fileWriter.Length + " Bytes";
-                txtCurrentFilePrec.Text = progressCurrentFile.Value.ToString() + "% Completed";
-
-                progressOverallStatus.Value = Convert.ToInt32((fileReader.BaseStream.Position * 100) / TotalSize);
-                txtOverallFileByte.Text = fileReader.BaseStream.Position.ToString() + " Bytes";
-                txtOverallPerc.Text = progressOverallStatus.Value.ToString() + "% Completed";
-            }
-            catch { }
-        }
-
-        string GetHours(ref long Sec)
-        {
-            long Count = 0;
-            while (Sec > 3599)
-            {
-                Count++;
-                Sec -= 3600;
-            }
-            if (Count == 0)
-            {
-                if (Sec != 0) return GetMin(ref Sec);
-                else return "";
-            }
-            else
-            {
-                if (Sec != 0) return Count.ToString() + " Hours  " + GetMin(ref Sec);
-                else return Count.ToString() + " Hours";
-            }
-        }
-
-        string GetMin(ref long Sec)
-        {
-            long Count = 0;
-            while (Sec > 59)
-            {
-                Count++;
-                Sec -= 60;
-            }
-            if (Count == 0)
-            {
-                if (Sec != 0) return Sec.ToString() + " Seconds";
-                else return "";
-            }
-            else
-            {
-                if (Sec != 0) return Count.ToString() + " Minutes  " + Sec.ToString() + " Seconds";
-                else return Count.ToString() + " Minutes";
-            }
-        }
-
-        void EstimateTime(object sender, EventArgs e)
-        {
-            long tmpVar = fileReader.BaseStream.Position - LastEstimation;
-            LastEstimation = fileReader.BaseStream.Position;
-            if (tmpVar >= 0) tmpVar = (((TotalSize - fileReader.BaseStream.Position) / tmpVar) * 5);
-            if (tmpVar < 20) tmpVar += 6;
-            txtTimeRemaining.Text = GetHours(ref tmpVar) + "  (approximately)";
-        }
-
-        private void txtBufferSize_ValueChanged(object sender, EventArgs e)
-        {
-            BufferSize = Convert.ToInt64(txtBufferSize.Value);
-        }
-
-        #region Spliting
+        #region Worker - Spliting
 
         void SplitFile(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
@@ -405,5 +402,23 @@ namespace Split_And_Merge
         }
         #endregion
 
-    }
+		#endregion
+
+		#region Merge
+
+		private void Merge_Click(object sender, EventArgs e)
+		{
+			if (Splitter.IsBusy) { MessageBox.Show("First stop the current process and then try again."); return; }
+			Merge merge = new Merge();
+			merge.Show();
+			this.Hide();
+		}
+
+		private void btnBrowseMerge_Click(object sender, EventArgs e)
+		{
+
+		}
+
+		#endregion
+	}
 }

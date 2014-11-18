@@ -30,13 +30,14 @@
         {
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Split));
-			this.txtSourceFile = new System.Windows.Forms.TextBox();
-			this.lblSourceFile = new System.Windows.Forms.Label();
-			this.btnBrowseSource = new System.Windows.Forms.Button();
+			this.txtSourceFileSplit = new System.Windows.Forms.TextBox();
+			this.lblSourceFileSplit = new System.Windows.Forms.Label();
+			this.btnBrowseSplit = new System.Windows.Forms.Button();
 			this.MainMenuStrip = new System.Windows.Forms.MenuStrip();
 			this.mnuFile = new System.Windows.Forms.ToolStripMenuItem();
 			this.itmExit = new System.Windows.Forms.ToolStripMenuItem();
-			this.panel1 = new System.Windows.Forms.Panel();
+			this.mergeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.panelBrowseSplit = new System.Windows.Forms.Panel();
 			this.panelButtons = new System.Windows.Forms.Panel();
 			this.gBoxSelParts = new System.Windows.Forms.GroupBox();
 			this.rButtonNParts = new System.Windows.Forms.RadioButton();
@@ -74,54 +75,70 @@
 			this.Progressor = new System.Windows.Forms.Timer(this.components);
 			this.TimeEstimater = new System.Windows.Forms.Timer(this.components);
 			this.Splitter = new System.ComponentModel.BackgroundWorker();
+			this.panelSplit = new System.Windows.Forms.Panel();
+			this.panelTittleSplit = new System.Windows.Forms.Panel();
+			this.label1 = new System.Windows.Forms.Label();
+			this.panelMerge = new System.Windows.Forms.Panel();
+			this.panelBrowseMerge = new System.Windows.Forms.Panel();
+			this.lblSourceFileMerge = new System.Windows.Forms.Label();
+			this.btnBrowseMerge = new System.Windows.Forms.Button();
+			this.txtSourceFileMerge = new System.Windows.Forms.TextBox();
+			this.panelTitleMerge = new System.Windows.Forms.Panel();
+			this.label3 = new System.Windows.Forms.Label();
 			this.MainMenuStrip.SuspendLayout();
-			this.panel1.SuspendLayout();
+			this.panelBrowseSplit.SuspendLayout();
 			this.panelButtons.SuspendLayout();
 			this.gBoxSelParts.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.txtPartSize)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.txtNumParts)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.txtBufferSize)).BeginInit();
 			this.panelStatus.SuspendLayout();
+			this.panelSplit.SuspendLayout();
+			this.panelTittleSplit.SuspendLayout();
+			this.panelMerge.SuspendLayout();
+			this.panelBrowseMerge.SuspendLayout();
+			this.panelTitleMerge.SuspendLayout();
 			this.SuspendLayout();
 			// 
-			// txtSourceFile
+			// txtSourceFileSplit
 			// 
-			this.txtSourceFile.BackColor = System.Drawing.SystemColors.Window;
-			this.txtSourceFile.Location = new System.Drawing.Point(72, 8);
-			this.txtSourceFile.Name = "txtSourceFile";
-			this.txtSourceFile.ReadOnly = true;
-			this.txtSourceFile.Size = new System.Drawing.Size(467, 20);
-			this.txtSourceFile.TabIndex = 1;
-			this.txtSourceFile.TabStop = false;
-			this.txtSourceFile.Click += new System.EventHandler(this.BrowseSource_Click);
+			this.txtSourceFileSplit.BackColor = System.Drawing.SystemColors.Window;
+			this.txtSourceFileSplit.Location = new System.Drawing.Point(72, 8);
+			this.txtSourceFileSplit.Name = "txtSourceFileSplit";
+			this.txtSourceFileSplit.ReadOnly = true;
+			this.txtSourceFileSplit.Size = new System.Drawing.Size(467, 20);
+			this.txtSourceFileSplit.TabIndex = 1;
+			this.txtSourceFileSplit.TabStop = false;
+			this.txtSourceFileSplit.Click += new System.EventHandler(this.BrowseSource_Click);
 			// 
-			// lblSourceFile
+			// lblSourceFileSplit
 			// 
-			this.lblSourceFile.AutoSize = true;
-			this.lblSourceFile.Location = new System.Drawing.Point(6, 11);
-			this.lblSourceFile.Margin = new System.Windows.Forms.Padding(0);
-			this.lblSourceFile.Name = "lblSourceFile";
-			this.lblSourceFile.Size = new System.Drawing.Size(60, 13);
-			this.lblSourceFile.TabIndex = 2;
-			this.lblSourceFile.Text = "Source File";
+			this.lblSourceFileSplit.AutoSize = true;
+			this.lblSourceFileSplit.Location = new System.Drawing.Point(6, 11);
+			this.lblSourceFileSplit.Margin = new System.Windows.Forms.Padding(0);
+			this.lblSourceFileSplit.Name = "lblSourceFileSplit";
+			this.lblSourceFileSplit.Size = new System.Drawing.Size(60, 13);
+			this.lblSourceFileSplit.TabIndex = 2;
+			this.lblSourceFileSplit.Text = "Source File";
 			// 
-			// btnBrowseSource
+			// btnBrowseSplit
 			// 
-			this.btnBrowseSource.Location = new System.Drawing.Point(569, 6);
-			this.btnBrowseSource.Name = "btnBrowseSource";
-			this.btnBrowseSource.Size = new System.Drawing.Size(87, 23);
-			this.btnBrowseSource.TabIndex = 3;
-			this.btnBrowseSource.Text = "Browse";
-			this.btnBrowseSource.UseVisualStyleBackColor = true;
-			this.btnBrowseSource.Click += new System.EventHandler(this.BrowseSource_Click);
+			this.btnBrowseSplit.Location = new System.Drawing.Point(569, 6);
+			this.btnBrowseSplit.Name = "btnBrowseSplit";
+			this.btnBrowseSplit.Size = new System.Drawing.Size(87, 23);
+			this.btnBrowseSplit.TabIndex = 3;
+			this.btnBrowseSplit.Text = "Browse";
+			this.btnBrowseSplit.UseVisualStyleBackColor = true;
+			this.btnBrowseSplit.Click += new System.EventHandler(this.BrowseSource_Click);
 			// 
 			// MainMenuStrip
 			// 
 			this.MainMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuFile});
+            this.mnuFile,
+            this.mergeToolStripMenuItem});
 			this.MainMenuStrip.Location = new System.Drawing.Point(0, 0);
 			this.MainMenuStrip.Name = "MainMenuStrip";
-			this.MainMenuStrip.Size = new System.Drawing.Size(669, 24);
+			this.MainMenuStrip.Size = new System.Drawing.Size(678, 24);
 			this.MainMenuStrip.TabIndex = 4;
 			this.MainMenuStrip.Text = "menuStrip1";
 			// 
@@ -141,16 +158,23 @@
 			this.itmExit.ToolTipText = "Exit the application.";
 			this.itmExit.Click += new System.EventHandler(this.Exit_Click);
 			// 
-			// panel1
+			// mergeToolStripMenuItem
 			// 
-			this.panel1.Controls.Add(this.lblSourceFile);
-			this.panel1.Controls.Add(this.btnBrowseSource);
-			this.panel1.Controls.Add(this.txtSourceFile);
-			this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
-			this.panel1.Location = new System.Drawing.Point(0, 24);
-			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(669, 38);
-			this.panel1.TabIndex = 5;
+			this.mergeToolStripMenuItem.Name = "mergeToolStripMenuItem";
+			this.mergeToolStripMenuItem.Size = new System.Drawing.Size(53, 20);
+			this.mergeToolStripMenuItem.Text = "Merge";
+			this.mergeToolStripMenuItem.Click += new System.EventHandler(this.Merge_Click);
+			// 
+			// panelBrowseSplit
+			// 
+			this.panelBrowseSplit.Controls.Add(this.lblSourceFileSplit);
+			this.panelBrowseSplit.Controls.Add(this.btnBrowseSplit);
+			this.panelBrowseSplit.Controls.Add(this.txtSourceFileSplit);
+			this.panelBrowseSplit.Dock = System.Windows.Forms.DockStyle.Top;
+			this.panelBrowseSplit.Location = new System.Drawing.Point(0, 23);
+			this.panelBrowseSplit.Name = "panelBrowseSplit";
+			this.panelBrowseSplit.Size = new System.Drawing.Size(678, 38);
+			this.panelBrowseSplit.TabIndex = 5;
 			// 
 			// panelButtons
 			// 
@@ -170,9 +194,9 @@
 			this.panelButtons.Controls.Add(this.btnStart);
 			this.panelButtons.Controls.Add(this.lblPartSize);
 			this.panelButtons.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.panelButtons.Location = new System.Drawing.Point(0, 62);
+			this.panelButtons.Location = new System.Drawing.Point(0, 61);
 			this.panelButtons.Name = "panelButtons";
-			this.panelButtons.Size = new System.Drawing.Size(669, 262);
+			this.panelButtons.Size = new System.Drawing.Size(678, 141);
 			this.panelButtons.TabIndex = 6;
 			this.panelButtons.Visible = false;
 			// 
@@ -217,7 +241,7 @@
 			this.lblPieces.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.lblPieces.Location = new System.Drawing.Point(0, 0);
 			this.lblPieces.Name = "lblPieces";
-			this.lblPieces.Size = new System.Drawing.Size(669, 23);
+			this.lblPieces.Size = new System.Drawing.Size(678, 23);
 			this.lblPieces.TabIndex = 37;
 			this.lblPieces.Text = "Info File";
 			this.lblPieces.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -417,9 +441,9 @@
 			this.panelStatus.Controls.Add(this.lblRemainingTime);
 			this.panelStatus.Controls.Add(this.lblBottomHeader);
 			this.panelStatus.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.panelStatus.Location = new System.Drawing.Point(0, 200);
+			this.panelStatus.Location = new System.Drawing.Point(0, 202);
 			this.panelStatus.Name = "panelStatus";
-			this.panelStatus.Size = new System.Drawing.Size(669, 124);
+			this.panelStatus.Size = new System.Drawing.Size(678, 124);
 			this.panelStatus.TabIndex = 7;
 			this.panelStatus.Visible = false;
 			// 
@@ -556,7 +580,7 @@
 			this.lblBottomHeader.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.lblBottomHeader.Location = new System.Drawing.Point(0, 0);
 			this.lblBottomHeader.Name = "lblBottomHeader";
-			this.lblBottomHeader.Size = new System.Drawing.Size(669, 23);
+			this.lblBottomHeader.Size = new System.Drawing.Size(678, 23);
 			this.lblBottomHeader.TabIndex = 15;
 			this.lblBottomHeader.Text = "Spliting Status";
 			this.lblBottomHeader.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -577,14 +601,118 @@
 			this.Splitter.DoWork += new System.ComponentModel.DoWorkEventHandler(this.SplitFile);
 			this.Splitter.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.SplitingCompleted);
 			// 
+			// panelSplit
+			// 
+			this.panelSplit.Controls.Add(this.panelButtons);
+			this.panelSplit.Controls.Add(this.panelBrowseSplit);
+			this.panelSplit.Controls.Add(this.panelTittleSplit);
+			this.panelSplit.Controls.Add(this.panelStatus);
+			this.panelSplit.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.panelSplit.Location = new System.Drawing.Point(0, 24);
+			this.panelSplit.Name = "panelSplit";
+			this.panelSplit.Size = new System.Drawing.Size(678, 326);
+			this.panelSplit.TabIndex = 8;
+			// 
+			// panelTittleSplit
+			// 
+			this.panelTittleSplit.Controls.Add(this.label1);
+			this.panelTittleSplit.Dock = System.Windows.Forms.DockStyle.Top;
+			this.panelTittleSplit.Location = new System.Drawing.Point(0, 0);
+			this.panelTittleSplit.Name = "panelTittleSplit";
+			this.panelTittleSplit.Size = new System.Drawing.Size(678, 23);
+			this.panelTittleSplit.TabIndex = 9;
+			// 
+			// label1
+			// 
+			this.label1.BackColor = System.Drawing.SystemColors.ActiveCaption;
+			this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.label1.Location = new System.Drawing.Point(0, 0);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(678, 23);
+			this.label1.TabIndex = 38;
+			this.label1.Text = "Splitter";
+			this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			// 
+			// panelMerge
+			// 
+			this.panelMerge.Controls.Add(this.panelTitleMerge);
+			this.panelMerge.Controls.Add(this.panelBrowseMerge);
+			this.panelMerge.Dock = System.Windows.Forms.DockStyle.Bottom;
+			this.panelMerge.Location = new System.Drawing.Point(0, 350);
+			this.panelMerge.Name = "panelMerge";
+			this.panelMerge.Size = new System.Drawing.Size(678, 313);
+			this.panelMerge.TabIndex = 9;
+			// 
+			// panelBrowseMerge
+			// 
+			this.panelBrowseMerge.Controls.Add(this.lblSourceFileMerge);
+			this.panelBrowseMerge.Controls.Add(this.btnBrowseMerge);
+			this.panelBrowseMerge.Controls.Add(this.txtSourceFileMerge);
+			this.panelBrowseMerge.Dock = System.Windows.Forms.DockStyle.Top;
+			this.panelBrowseMerge.Location = new System.Drawing.Point(0, 0);
+			this.panelBrowseMerge.Name = "panelBrowseMerge";
+			this.panelBrowseMerge.Size = new System.Drawing.Size(678, 38);
+			this.panelBrowseMerge.TabIndex = 6;
+			// 
+			// lblSourceFileMerge
+			// 
+			this.lblSourceFileMerge.AutoSize = true;
+			this.lblSourceFileMerge.Location = new System.Drawing.Point(6, 11);
+			this.lblSourceFileMerge.Margin = new System.Windows.Forms.Padding(0);
+			this.lblSourceFileMerge.Name = "lblSourceFileMerge";
+			this.lblSourceFileMerge.Size = new System.Drawing.Size(60, 13);
+			this.lblSourceFileMerge.TabIndex = 2;
+			this.lblSourceFileMerge.Text = "Source File";
+			// 
+			// btnBrowseMerge
+			// 
+			this.btnBrowseMerge.Location = new System.Drawing.Point(569, 6);
+			this.btnBrowseMerge.Name = "btnBrowseMerge";
+			this.btnBrowseMerge.Size = new System.Drawing.Size(87, 23);
+			this.btnBrowseMerge.TabIndex = 3;
+			this.btnBrowseMerge.Text = "Browse";
+			this.btnBrowseMerge.UseVisualStyleBackColor = true;
+			this.btnBrowseMerge.Click += new System.EventHandler(this.btnBrowseMerge_Click);
+			// 
+			// txtSourceFileMerge
+			// 
+			this.txtSourceFileMerge.BackColor = System.Drawing.SystemColors.Window;
+			this.txtSourceFileMerge.Location = new System.Drawing.Point(72, 8);
+			this.txtSourceFileMerge.Name = "txtSourceFileMerge";
+			this.txtSourceFileMerge.ReadOnly = true;
+			this.txtSourceFileMerge.Size = new System.Drawing.Size(467, 20);
+			this.txtSourceFileMerge.TabIndex = 1;
+			this.txtSourceFileMerge.TabStop = false;
+			// 
+			// panelTitleMerge
+			// 
+			this.panelTitleMerge.Controls.Add(this.label3);
+			this.panelTitleMerge.Dock = System.Windows.Forms.DockStyle.Top;
+			this.panelTitleMerge.Location = new System.Drawing.Point(0, 38);
+			this.panelTitleMerge.Name = "panelTitleMerge";
+			this.panelTitleMerge.Size = new System.Drawing.Size(678, 23);
+			this.panelTitleMerge.TabIndex = 10;
+			// 
+			// label3
+			// 
+			this.label3.BackColor = System.Drawing.SystemColors.ActiveCaption;
+			this.label3.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.label3.Location = new System.Drawing.Point(0, 0);
+			this.label3.Name = "label3";
+			this.label3.Size = new System.Drawing.Size(678, 23);
+			this.label3.TabIndex = 38;
+			this.label3.Text = "Merge";
+			this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			// 
 			// Split
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(669, 324);
-			this.Controls.Add(this.panelStatus);
-			this.Controls.Add(this.panelButtons);
-			this.Controls.Add(this.panel1);
+			this.ClientSize = new System.Drawing.Size(678, 663);
+			this.Controls.Add(this.panelSplit);
+			this.Controls.Add(this.panelMerge);
 			this.Controls.Add(this.MainMenuStrip);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -593,8 +721,8 @@
 			this.Text = "Split and Merge - Split";
 			this.MainMenuStrip.ResumeLayout(false);
 			this.MainMenuStrip.PerformLayout();
-			this.panel1.ResumeLayout(false);
-			this.panel1.PerformLayout();
+			this.panelBrowseSplit.ResumeLayout(false);
+			this.panelBrowseSplit.PerformLayout();
 			this.panelButtons.ResumeLayout(false);
 			this.panelButtons.PerformLayout();
 			this.gBoxSelParts.ResumeLayout(false);
@@ -604,6 +732,12 @@
 			((System.ComponentModel.ISupportInitialize)(this.txtBufferSize)).EndInit();
 			this.panelStatus.ResumeLayout(false);
 			this.panelStatus.PerformLayout();
+			this.panelSplit.ResumeLayout(false);
+			this.panelTittleSplit.ResumeLayout(false);
+			this.panelMerge.ResumeLayout(false);
+			this.panelBrowseMerge.ResumeLayout(false);
+			this.panelBrowseMerge.PerformLayout();
+			this.panelTitleMerge.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -611,13 +745,13 @@
 
         #endregion
 
-        private System.Windows.Forms.TextBox txtSourceFile;
-        private System.Windows.Forms.Label lblSourceFile;
-        private System.Windows.Forms.Button btnBrowseSource;
+        private System.Windows.Forms.TextBox txtSourceFileSplit;
+        private System.Windows.Forms.Label lblSourceFileSplit;
+        private System.Windows.Forms.Button btnBrowseSplit;
         private System.Windows.Forms.MenuStrip MainMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem mnuFile;
         private System.Windows.Forms.ToolStripMenuItem itmExit;
-        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Panel panelBrowseSplit;
         private System.Windows.Forms.Panel panelButtons;
         private System.Windows.Forms.Label lblTotalSize;
         private System.Windows.Forms.Button btnBrowsePart;
@@ -655,6 +789,17 @@
         private System.Windows.Forms.Timer Progressor;
         private System.Windows.Forms.Timer TimeEstimater;
         private System.ComponentModel.BackgroundWorker Splitter;
+		private System.Windows.Forms.ToolStripMenuItem mergeToolStripMenuItem;
+		private System.Windows.Forms.Panel panelSplit;
+		private System.Windows.Forms.Panel panelTittleSplit;
+		private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.Panel panelMerge;
+		private System.Windows.Forms.Panel panelTitleMerge;
+		private System.Windows.Forms.Label label3;
+		private System.Windows.Forms.Panel panelBrowseMerge;
+		private System.Windows.Forms.Label lblSourceFileMerge;
+		private System.Windows.Forms.Button btnBrowseMerge;
+		private System.Windows.Forms.TextBox txtSourceFileMerge;
     }
 }
 
