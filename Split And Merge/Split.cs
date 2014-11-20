@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -22,6 +23,7 @@ namespace Split_And_Merge
 		int TotalFile;		// Total no of files to be splited
 		long BufferSize;	// Size of the buffer selected by user
 		int CurrentFileIndex;// Index Number of current file in progress
+		int startTime;		// Date time when process starts
 
 		#region VariablesSplitter
 
@@ -54,6 +56,8 @@ namespace Split_And_Merge
 		#region VariablesMerge
 
 		bool StartedMerged = false;
+		Stream outputFile;
+		Stream inputFile;
 
 		#endregion
 
@@ -86,6 +90,7 @@ namespace Split_And_Merge
 				using (fileReader = new BinaryReader(File.Open(Path, FileMode.Open, FileAccess.Read, FileShare.None)))
 				{
 					SourceByte = new byte[30];
+					
 					fileReader.Read(SourceByte, 0, 10);
 
 					fileReader.BaseStream.Position = (fileReader.BaseStream.Length / 2) - 5;
@@ -114,7 +119,6 @@ namespace Split_And_Merge
 			OpenFileDialog OFD = new OpenFileDialog();
 			OFD.CheckFileExists = true;
 			if (OFD.ShowDialog() == DialogResult.Cancel) return;
-			//ClearAll();
 			AssignSourceFile(OFD.FileName);
 		}
 
@@ -207,17 +211,18 @@ namespace Split_And_Merge
 
 		void ProgressChanged(object sender, EventArgs e)
 		{
+			if (!Splitter.IsBusy) return;
 			try
 			{
-				txtFileProcessing.Text = "File " + Convert.ToString(CurrentFileIndex + 1) + " / " + TotalFile.ToString();
+				txtFileProcessingSplit.Text = "File " + Convert.ToString(CurrentFileIndex + 1) + " / " + TotalFile.ToString();
 
-				progressCurrentFile.Value = Convert.ToInt32((fileWriter.Length * 100) / FileSizeArr[CurrentFileIndex]);
-				txtCurrentFileByte.Text = fileWriter.Length + " Bytes";
-				txtCurrentFilePrec.Text = progressCurrentFile.Value.ToString() + "% Completed";
+				progressCurrentFileSplit.Value = Convert.ToInt32((fileWriter.Length * 100) / FileSizeArr[CurrentFileIndex]);
+				txtCurrentFileByteSplit.Text = fileWriter.Length + " Bytes";
+				txtCurrentFilePrecSplit.Text = progressCurrentFileSplit.Value.ToString() + "% Completed";
 
-				progressOverallStatus.Value = Convert.ToInt32((fileReader.BaseStream.Position * 100) / TotalSize);
-				txtOverallFileByte.Text = fileReader.BaseStream.Position.ToString() + " Bytes";
-				txtOverallPerc.Text = progressOverallStatus.Value.ToString() + "% Completed";
+				progressOverallStatusSplit.Value = Convert.ToInt32((fileReader.BaseStream.Position * 100) / TotalSize);
+				txtOverallFileByteSplit.Text = fileReader.BaseStream.Position.ToString() + " Bytes";
+				txtOverallPercSplit.Text = progressOverallStatusSplit.Value.ToString() + "% Completed";
 			}
 			catch { }
 		}
@@ -264,11 +269,12 @@ namespace Split_And_Merge
 
 		void EstimateTime(object sender, EventArgs e)
 		{
+			if (!Splitter.IsBusy) return;
 			long tmpVar = fileReader.BaseStream.Position - LastEstimation;
 			LastEstimation = fileReader.BaseStream.Position;
 			if (tmpVar >= 0) tmpVar = (((TotalSize - fileReader.BaseStream.Position) / tmpVar) * 5);
 			if (tmpVar < 20) tmpVar += 6;
-			txtTimeRemaining.Text = GetHours(ref tmpVar) + "  (approximately)";
+			txtTimeRemainingSplit.Text = GetHours(ref tmpVar) + "  (approximately)";
 		}
 
 		private void txtBufferSize_ValueChanged(object sender, EventArgs e)
@@ -307,11 +313,11 @@ namespace Split_And_Merge
 			btnStopSplit.Enabled = true;
 
 			panelStatusSplit.Visible = true;
-			Progressor.Enabled = true;
+			ProgressorSplit.Enabled = true;
 			LastEstimation = fileReader.BaseStream.Position;
 			TimeEstimater.Enabled = true;
 
-			txtTimeRemaining.Text = "Started, Processing...";
+			txtTimeRemainingSplit.Text = "Started, Processing...";
 		}
 
 		void btnStop_Click(object sender, EventArgs e)
@@ -365,6 +371,7 @@ namespace Split_And_Merge
 			long tmpEndByte;
 			long tmpReadByte;
 			CurrentFileIndex = 0;
+			startTime = DateTime.Now.Second;
 
 			while (CurrentFileIndex < TotalFile)
 			{
@@ -421,21 +428,21 @@ namespace Split_And_Merge
 			if (Canceled) MessageBox.Show("The process had been canceled by the user. Click Start button to resume it again.", "Process Canceled");
 			else
 			{
-				txtFileProcessing.Text = "File " + Convert.ToString(CurrentFileIndex + 1) + " / " + TotalFile.ToString();
+				txtFileProcessingSplit.Text = "File " + Convert.ToString(CurrentFileIndex + 1) + " / " + TotalFile.ToString();
 
-				progressCurrentFile.Value = 100;
-				txtCurrentFileByte.Text = lstParts.Items[lstParts.Items.Count - 1].SubItems[3].Text + " Bytes";
-				txtCurrentFilePrec.Text = "100% Completed";
+				progressCurrentFileSplit.Value = 100;
+				txtCurrentFileByteSplit.Text = lstParts.Items[lstParts.Items.Count - 1].SubItems[3].Text + " Bytes";
+				txtCurrentFilePrecSplit.Text = "100% Completed";
 
-				progressOverallStatus.Value = 100;
-				txtOverallFileByte.Text = txtTotalSizeSplit.Text + " Bytes";
-				txtOverallPerc.Text = "100% Completed";
+				progressOverallStatusSplit.Value = 100;
+				txtOverallFileByteSplit.Text = txtTotalSizeSplit.Text + " Bytes";
+				txtOverallPercSplit.Text = "100% Completed";
 			}
 
 			Generate_InfoFile();
-			Progressor.Enabled = false;
+			ProgressorSplit.Enabled = false;
 			TimeEstimater.Enabled = false;
-			txtTimeRemaining.Text = "Estimating... Please Wait";
+			txtTimeRemainingSplit.Text = "Estimating... Please Wait";
 
 			try { fileWriter.Close(); fileWriter = null; }
 			catch { }
@@ -446,6 +453,8 @@ namespace Split_And_Merge
 			btnStopSplit.Enabled = false;
 			panelStatusSplit.Visible = false;
 			Canceled = false;
+			long seconds = ((long)DateTime.Now.Second - startTime);
+			MessageBox.Show("Split complet " + GetHours(ref seconds));
 		}
 		#endregion
 
@@ -463,6 +472,15 @@ namespace Split_And_Merge
 			//ClearAll();
 			OpenProject(OFD.FileName);
 		}
+
+		private void btnBrowseFileMerge_Click(object sender, EventArgs e)
+		{
+			if (Merge.IsBusy) { MessageBox.Show("First stop the current process and then proceed."); return; }
+			SaveFileDialog SFD = new SaveFileDialog();
+			SFD.CheckPathExists = true;
+			if (SFD.ShowDialog() == DialogResult.Cancel) return;
+			txtFileNameMerge.Text = SFD.FileName;
+		}
 		
 		private void Splitter_Click(object sender, EventArgs e)
 		{
@@ -471,6 +489,26 @@ namespace Split_And_Merge
 			mergeToolStripMenuItem.Visible = true; 
 			panelMerge.Visible = false;
 			panelSplit.Visible = true;
+
+		}
+
+		private void ProgressChangedMerge(object sender, EventArgs e)
+		{
+
+			if (!Merge.IsBusy) return;
+			try
+			{
+				txtFileProcessingMerge.Text = "File " + Convert.ToString(CurrentFileIndex + 1) + " / " + TotalFile.ToString();
+
+				progressCurrentFileMerge.Value = Convert.ToInt32((inputFile.Length * 100) / FileSizeArr[CurrentFileIndex]);
+				txtCurrentFileByteMerge.Text = inputFile.Length + " Bytes";
+				txtCurrentFilePrecMerge.Text = progressCurrentFileMerge.Value.ToString() + "% Completed";
+
+				progressOverallStatusMerge.Value = Convert.ToInt32((outputFile.Position * 100) / TotalSize);
+				txtOverallFileByteMerge.Text = outputFile.Position.ToString() + " Bytes";
+				txtOverallPercMerge.Text = progressOverallStatusMerge.Value.ToString() + "% Completed";
+			}
+			catch { }
 
 		}
 
@@ -571,27 +609,38 @@ namespace Split_And_Merge
 		{
 
 			FileLocationArr = new string[TotalFile];
+			FileSizeArr = new long[TotalFile];
+
 			for (int i = 0; i < TotalFile; i++)
 			{
 				FileLocationArr[i] = lblPartMerge.Items[i].SubItems[1].Text;
+				FileSizeArr[i] = Convert.ToInt64(lblPartMerge.Items[i].SubItems[2].Text);
 			}
-
 
 			Merge.RunWorkerAsync();
 			btnStartMerge.Enabled = false;
+
+			panelStatusMerge.Visible = true;
+			ProgressorMerge.Enabled = true;
+			//LastEstimation = fileReader.BaseStream.Position;
+			//TimeEstimater.Enabled = true;
+
+			txtTimeRemainingMerge.Text = "Started, Processing...";
 		}
 
 		private void MergeFiles(object sender, DoWorkEventArgs e)
 		{
-
-			using (Stream output = File.OpenWrite(txtFileNameMerge.Text))
+			startTime = DateTime.Now.Second;
+			using (outputFile = File.OpenWrite(txtFileNameMerge.Text))
 			{
+				CurrentFileIndex = 0;
 				foreach (string partName in FileLocationArr)
 				{
-					using (Stream input = File.OpenRead(partName))
+					using (inputFile = File.OpenRead(partName))
 					{
-						input.CopyTo(output);
+						inputFile.CopyTo(outputFile);
 					}
+					CurrentFileIndex++;
 				}
 			}
 
@@ -600,6 +649,19 @@ namespace Split_And_Merge
 		private void MergingCompleted(object sender, RunWorkerCompletedEventArgs e)
 		{
 			btnStartMerge.Enabled = true;
+
+			txtFileProcessingMerge.Text = "File " + Convert.ToString(CurrentFileIndex) + " / " + TotalFile.ToString();
+
+			progressCurrentFileMerge.Value = 100;
+			txtCurrentFileByteMerge.Text = lblPartMerge.Items[lblPartMerge.Items.Count - 1].SubItems[4].Text + " Bytes";
+			txtCurrentFilePrecMerge.Text = "100% Completed";
+
+			progressOverallStatusMerge.Value = 100;
+			txtOverallFileByteMerge.Text = txtTotalSizeMerge.Text + " Bytes";
+			txtOverallPercMerge.Text = "100% Completed";
+
+			long seconds = ((long)DateTime.Now.Second - startTime);
+			MessageBox.Show("Split complet " + GetHours(ref seconds));
 		}
 		
 		#endregion
@@ -608,8 +670,6 @@ namespace Split_And_Merge
 		{
 			new About().Show();
 		}
-
-		
 
 	}
 }
